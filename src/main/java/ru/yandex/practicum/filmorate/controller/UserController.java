@@ -30,12 +30,7 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         log.info("Запрос на создание пользователя");
 
-        List<String> listEmail = users.values()
-                .stream()
-                .map(User::getEmail)
-                .toList();
-
-        if (listEmail.contains(user.getEmail())) {
+        if (isUsersContainsEmail(user.getEmail())) {
             log.warn("Имейл" + user.getEmail() + " уже используется");
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
@@ -63,33 +58,26 @@ public class UserController {
             throw new ValidationException("Id должен быть указан");
         }
 
-        if (users.containsKey(newUser.getId())) {
-
-            User oldUser = users.get(newUser.getId());
-
-            List<String> listEmail = users.values()
-                    .stream()
-                    .map(User::getEmail)
-                    .toList();
-
-            if (listEmail.contains(newUser.getEmail())) {
-                log.warn("В запросе на обновление указан используемый email");
-                throw new DuplicatedDataException("Этот имейл уже используется");
-            }
-
-            oldUser.setEmail(newUser.getEmail());
-            oldUser.setLogin(newUser.getLogin());
-            oldUser.setName(newUser.getName());
-            oldUser.setBirthday(newUser.getBirthday());
-            users.put(newUser.getId(), oldUser);
-            log.info("Обновлены данные пользователя с id " + oldUser.getId());
-
-            return oldUser;
+        if (!users.containsKey(newUser.getId())) {
+            log.warn("Обновление данных пользователя не произошло, не найден пользователь с id " + newUser.getId());
+            throw new NotFoundException("User с id = " + newUser.getId() + " не найден");
         }
 
-        log.warn("Обновление данных пользователя не произошло, не найден пользователь с id " + newUser.getId());
-        throw new NotFoundException("User с id = " + newUser.getId() + " не найден");
+        User oldUser = users.get(newUser.getId());
 
+        if (isUsersContainsEmail(newUser.getEmail())) {
+            log.warn("В запросе на обновление указан используемый email");
+            throw new DuplicatedDataException("Этот имейл уже используется");
+        }
+
+        oldUser.setEmail(newUser.getEmail());
+        oldUser.setLogin(newUser.getLogin());
+        oldUser.setName(newUser.getName());
+        oldUser.setBirthday(newUser.getBirthday());
+        users.put(newUser.getId(), oldUser);
+        log.info("Обновлены данные пользователя с id " + oldUser.getId());
+
+        return oldUser;
     }
 
     // вспомогательный метод для генерации идентификатора нового пользователя
@@ -100,5 +88,14 @@ public class UserController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    // проверка содержит Map users указанный email или нет
+    private boolean isUsersContainsEmail(String email) {
+        List<String> listEmail = users.values()
+                .stream()
+                .map(User::getEmail)
+                .toList();
+        return listEmail.contains(email);
     }
 }

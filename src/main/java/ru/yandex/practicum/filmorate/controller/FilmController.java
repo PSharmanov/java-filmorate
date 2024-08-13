@@ -40,13 +40,14 @@ public class FilmController {
             throw new ValidationException("Id должен быть указан");
         }
 
-        if (films.containsKey(newFilm.getId())) {
-            films.put(newFilm.getId(), newFilm);
-            log.info("Обновлены данные фильма с id " + newFilm.getId());
-            return newFilm;
+        if (!films.containsKey(newFilm.getId())) {
+            log.warn("Обновление данных фильма не произошло, не найден фильм с id " + newFilm.getId());
+            throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
         }
-        log.warn("Обновление данных фильма не произошло, не найден фильм с id " + newFilm.getId());
-        throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
+
+        films.put(newFilm.getId(), newFilm);
+        log.info("Обновлены данные фильма с id " + newFilm.getId());
+        return newFilm;
     }
 
     // вспомогательный метод для генерации идентификатора нового фильма
