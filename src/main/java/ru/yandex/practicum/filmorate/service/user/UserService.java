@@ -155,18 +155,9 @@ public class UserService {
 
         Collection<User> friendsOfUser1 = findAllFriends(id);
         Collection<User> friendsOfUser2 = findAllFriends(otherId);
+        friendsOfUser1.retainAll(friendsOfUser2);
 
-        Set<Long> friendIdsUser1 = friendsOfUser1.stream().map(User::getId).collect(Collectors.toSet());
-        Set<Long> friendIdsUser2 = friendsOfUser2.stream().map(User::getId).collect(Collectors.toSet());
-
-        friendIdsUser1.retainAll(friendIdsUser2);
-
-        Collection<User> commonFriends = friendIdsUser1.stream()
-                .map(userStorage::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-        log.info("Найдено " + commonFriends.size() + " общих друзей для пользователей с id = " + id + " и id = " + otherId);
-        return commonFriends;
+        log.info("Найдено " + friendsOfUser1.size() + " общих друзей для пользователей с id = " + id + " и id = " + otherId);
+        return friendsOfUser1;
     }
 }

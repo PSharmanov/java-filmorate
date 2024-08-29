@@ -87,10 +87,9 @@ public class FilmService {
             throw new NotFoundException("Пользователь добавляющий лайк не найден");
         }
 
-        Set<Long> likes = film.get().getLikes();
-        likes.add(userId);
-        film.get().setLikes(likes);
-        filmStorage.update(film.get());
+        Film foundFilm = film.get();
+        foundFilm.getLikes().add(userId);
+        filmStorage.update(foundFilm);
         log.info("Добавлен лайк к фильму с id " + filmId);
     }
 
@@ -110,11 +109,10 @@ public class FilmService {
             throw new NotFoundException("Пользователь удаляющий лайк не найден");
         }
 
-        Set<Long> likes = film.get().getLikes();
-        likes.remove(userId);
-        film.get().setLikes(likes);
+        Film foundFilm = film.get();
+        foundFilm.getLikes().remove(userId);
+        filmStorage.update(foundFilm);
         log.info("Удален лайк к фильму с id " + filmId);
-        filmStorage.update(film.get());
     }
 
     //получение популярных фильмов
