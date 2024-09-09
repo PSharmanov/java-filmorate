@@ -55,71 +55,82 @@ Template repository for Filmorate project.
 
 ### Примеры запросов основных операций приложения:
 
-#### FilmService
-
 1. Получение данных по всем фильмам - findAll():
    SELECT * FROM film;
 
-2. Добавление фильма в базу данных - create():
-   INSERT INTO film (name, description, releaseDate, duration, mpaRating)
+
+2. Добавление фильма в базу данных - create():  
+   INSERT INTO film (name, description, releaseDate, duration, mpaRating)  
    VALUES ('New Film', 'This is a new film', '2022-01-01', 120, 1);
 
-3. Обновление данных фильма в базе данных - update():
-   UPDATE film
-   SET name = 'Updated Film', description = 'This is an updated film'
-   WHERE film_id = 1;
 
-4. Получение данных о фильме по id - findById():
-   SELECT * FROM film WHERE film_id = 1;
+3. Обновление данных фильма в базе данных - update():  
+   UPDATE film  
+   SET name = 'Updated Film', description = 'This is an updated film'  
+   WHERE film_id = 1;  
 
-5. Добавление лайка фильму - addLike():
-   INSERT INTO likes (film_id, user_id)
-   VALUES (1, 1);
 
-6. Удаление лайка фильма - removeLike():
-   DELETE FROM likes WHERE film_id = 1 AND user_id = 1;
-   
-7. Получение 10 популярных фильмов - findPopular():
-   SELECT f.*, COUNT(l.film_id) AS likes_count
-   FROM film f
-   JOIN likes l ON f.film_id = l.film_id
-   GROUP BY f.film_id
-   ORDER BY likes_count DESC
-   LIMIT 10;
+4. Получение данных о фильме по id - findById():  
+   SELECT * FROM film WHERE film_id = 1;  
+
+
+5. Добавление лайка фильму - addLike():  
+   INSERT INTO likes (film_id, user_id)  
+   VALUES (1, 1);  
+  
+
+6. Удаление лайка фильма - removeLike():  
+   DELETE FROM likes WHERE film_id = 1 AND user_id = 1;  
+  
+
+7. Получение 10 популярных фильмов - findPopular():  
+   SELECT f.*, COUNT(l.film_id) AS likes_count  
+   FROM film f  
+   JOIN likes l ON f.film_id = l.film_id  
+   GROUP BY f.film_id  
+   ORDER BY likes_count DESC  
+   LIMIT 10;  
 
 #### UserService
 
-1. Получение всех данных о пользователях - findAll():
-  SELECT * FROM user;
+1. Получение всех данных о пользователях - findAll():  
+   SELECT * FROM user;
 
-2. Добавление пользователя в базу данных - create():
-   INSERT INTO user (email, login, name, birthday, registrationDate)
+
+2. Добавление пользователя в базу данных - create():  
+   INSERT INTO user (email, login, name, birthday, registrationDate)  
    VALUES ('newuser@example.com', 'newuser', 'New User', '1990-01-01', '2022-01-01');
 
-3. Обновление данных пользователя - update():
-   UPDATE user
-   SET name = 'Updated User', email = 'updateduser@example.com'
-   WHERE user_id = 1;
 
-4. Получение данных о пользователе по id - findById():
-   SELECT * FROM user WHERE user_id = 1;
+3. Обновление данных пользователя - update():  
+   UPDATE user  
+   SET name = 'Updated User', email = 'updateduser@example.com'  
+   WHERE user_id = 1;  
 
-5. Добавление пользователя в друзья - addFriend():
-   INSERT INTO friendship (user_id, friend_id)
-   VALUES (1, 2);
 
-6. Удаление пользователя из друзей - removeFriend():
-   DELETE FROM friendship WHERE user_id = 1 AND friend_id = 2;
+4. Получение данных о пользователе по id - findById():  
+   SELECT * FROM user WHERE user_id = 1;  
 
-7. Получение всех друзей пользователя - findAllFriends():
-   SELECT u.*
-   FROM user u
-   JOIN friendship f ON u.user_id = f.friend_id
-   WHERE f.user_id = 1;
 
-8. Получение общих друзей двух пользователей - findCommonFriends():
-   SELECT u.*
-   FROM user u
-   JOIN friendship f1 ON u.user_id = f1.friend_id
-   JOIN friendship f2 ON u.user_id = f2.friend_id
-   WHERE f1.user_id = 1 AND f2.user_id = 2;
+5. Добавление пользователя в друзья - addFriend():  
+   INSERT INTO friendship (user_id, friend_id)  
+   VALUES (1, 2);  
+
+
+6. Удаление пользователя из друзей - removeFriend():  
+   DELETE FROM friendship WHERE user_id = 1 AND friend_id = 2;  
+
+
+7. Получение всех друзей пользователя - findAllFriends():  
+   SELECT u.*  
+   FROM user u  
+   JOIN friendship f ON u.user_id = f.friend_id  
+   WHERE f.user_id = 1;  
+
+
+8. Получение общих друзей двух пользователей - findCommonFriends():  
+   SELECT u.*  
+   FROM user u  
+   JOIN friendship f1 ON u.user_id = f1.friend_id  
+   JOIN friendship f2 ON u.user_id = f2.friend_id  
+   WHERE f1.user_id = 1 AND f2.user_id = 2;  
