@@ -1,7 +1,8 @@
-package ru.yandex.practicum.filmorate.service.user;
+package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -10,14 +11,21 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class UserService {
     private final UserStorage userStorage;
+
+    @Autowired
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public Collection<User> findAll() {
         log.info("Запрос на получение списка всех пользователей");
@@ -27,7 +35,9 @@ public class UserService {
     public User create(User user) {
         log.info("Запрос на создание пользователя");
 
-        if (isUsersContainsEmail(user.getEmail())) {
+        Optional<User> userDb = userStorage.findByEmail(user.getEmail());
+
+        if (userDb.isPresent()) {
             log.warn("Имейл" + user.getEmail() + " уже используется");
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
@@ -37,10 +47,9 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        user.setId(getNextId());
         user.setRegistrationDate(Instant.now());
 
-        userStorage.create(user);
+        user = userStorage.create(user);
 
         log.info("Добавлен пользователь с id= " + user.getId());
 
@@ -61,8 +70,9 @@ public class UserService {
         }
 
         User oldUser = userStorage.findById(newUser.getId()).get();
+        Optional<User> userByEmail = userStorage.findByEmail(newUser.getEmail());
 
-        if (isUsersContainsEmail(newUser.getEmail())) {
+        if (userByEmail.isPresent()) {
             log.warn("В запросе на обновление указан используемый email");
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
@@ -123,6 +133,7 @@ public class UserService {
 
         findById(userId).getFriends().add(friendId);
         findById(friendId).getFriends().add(userId);
+        userStorage.addFriend(userId, friendId);
         log.info("Добавлен друга с id:" + friendId + " пользователю с id: " + userId);
     }
 
@@ -130,6 +141,7 @@ public class UserService {
     public void removeFriend(long userId, long friendId) {
         findById(userId).getFriends().remove(friendId);
         findById(friendId).getFriends().remove(userId);
+        userStorage.removeFriend(userId, friendId);
         log.info("Удален друга с id:" + friendId + "у пользователя с id: " + userId);
     }
 
@@ -138,8 +150,8 @@ public class UserService {
     public Collection<User> findAllFriends(long id) {
         log.info("Запрос на получение списка друзей для пользователя с id = " + id);
         User user = findById(id);
-        Set<Long> friendIds = user.getFriends();
-        Collection<User> friends = friendIds.stream()
+        Set<Long> friendsId = user.getFriends();
+        Collection<User> friends = friendsId.stream()
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

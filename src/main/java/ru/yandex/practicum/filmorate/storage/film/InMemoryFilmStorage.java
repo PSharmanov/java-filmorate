@@ -3,10 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -34,5 +31,20 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         films.put(film.getId(), film);
         return film;
+    }
+
+    @Override
+    public void addLike(long filmId, long userId) {
+
+    }
+
+    @Override
+    public void removeLike(long filmId, long userId) {
+
+    }
+
+    @Override
+    public List<Film> findPopular(Integer count) {
+        return null;
     }
 }

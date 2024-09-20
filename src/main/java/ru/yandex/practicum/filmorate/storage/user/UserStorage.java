@@ -19,4 +19,11 @@ public interface UserStorage {
     //обновление пользователя
     User update(User user);
 
+    void addFriend(Long id, Long friendId);
+
+    //удаление друга у пользователя
+    void removeFriend(long userId, long friendId);
+
+    //получение пользователя по email
+    Optional<User> findByEmail(String email);
 }

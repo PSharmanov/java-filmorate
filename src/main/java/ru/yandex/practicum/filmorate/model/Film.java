@@ -1,12 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.annotations.ValidReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,6 +29,6 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительным числом.")
     private Long duration;
     private Set<Long> likes = new HashSet<>();
-    private Set<Long> genre = new HashSet<>();
-    private String mpaRating;
+    private List<Genres> genres = new ArrayList<>();
+    private Mpa mpa;
 }

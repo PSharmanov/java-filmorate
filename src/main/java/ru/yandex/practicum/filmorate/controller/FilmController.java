@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,8 +55,13 @@ public class FilmController {
 
     //получение популярных фильмов
     @GetMapping("/popular")
-    public Set<Film> findPopular(@RequestParam(defaultValue = "10") final Integer count) {
+    public List<Film> findPopular(@RequestParam(defaultValue = "10") final Integer count) {
         return filmService.findPopular(count);
+    }
+
+    @GetMapping("/{id}")
+    public Film filmById(@PathVariable("id") long filmId) {
+        return filmService.findById(filmId);
     }
 
 }
