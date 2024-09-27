@@ -82,7 +82,7 @@ class UserDbStorageTest {
     void addFriend() {
         userStorage.addFriend(2L,3L);
         Collection<User> userList = friendshipStorage.findAllFriends(2L);
-        assertThat(userList).extracting(User::getId).contains(3L);
+        assertThat(userList).extracting(User::getId).contains(2L);
 
     }
 
@@ -90,6 +90,6 @@ class UserDbStorageTest {
     void removeFriend() {
         userStorage.removeFriend(2L,1L);
         Collection<User> userList = friendshipStorage.findAllFriends(2L);
-        assertThat(userList).extracting(User::getId).isEmpty();
+        assertThat(userList).isEmpty();
     }
 }

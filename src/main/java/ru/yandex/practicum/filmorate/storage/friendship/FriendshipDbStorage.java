@@ -25,16 +25,16 @@ public class FriendshipDbStorage extends BaseDbStorage<User> implements Friendsh
     @Override
     public void removeFriend(Long userId, Long friendId) {
         String sqlQuery = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+        update(sqlQuery, userId, friendId);
     }
 
     @Override
     public Collection<User> findAllFriends(Long id) {
-        String sqlQuery = "SELECT u.* " +
-                "FROM friendship AS f " +
-                "INNER JOIN users AS u ON u.user_id = f.friend_id " +
-                "WHERE f.user_id = ? " +
-                "ORDER BY u.user_id";
+        String sqlQuery = "SELECT u.*, GROUP_CONCAT(f.friend_id) AS friends " +
+                "FROM users u " +
+                "LEFT JOIN friendship f ON u.user_id = f.user_id AND f.status_id = 'confirmed' " +
+                "WHERE u.user_id = ? " +
+                "HAVING friends IS NOT NULL";
         return findMany(sqlQuery, id);
     }
 

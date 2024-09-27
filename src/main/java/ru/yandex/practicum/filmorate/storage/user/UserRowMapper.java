@@ -8,6 +8,8 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class UserRowMapper implements RowMapper<User> {
@@ -24,6 +26,18 @@ public class UserRowMapper implements RowMapper<User> {
 
         Date birthday = rs.getDate("birthday");
         user.setBirthday(birthday.toLocalDate());
+
+        String friendsString = rs.getString("friends"); // Получаем строку с id друзей
+        if (friendsString != null) {
+            String[] friendIds = friendsString.split(",");
+            Set<Long> friendSet = new HashSet<>(); // Используем Set для избежания дубликатов
+            for (String friendId : friendIds) {
+                friendSet.add(Long.parseLong(friendId));
+            }
+            user.setFriends(friendSet);
+        } else {
+            user.setFriends(new HashSet<>()); // Пустой набор друзей, если нет данных
+        }
 
         return user;
     }

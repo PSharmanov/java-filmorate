@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,13 +8,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseDbStorage;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Repository
-@FieldDefaults(makeFinal = true, level = AccessLevel.PROTECTED)
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
     public UserDbStorage(JdbcTemplate jdbcTemplate, RowMapper<User> mapper) {
@@ -25,26 +20,33 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
-        String sqlQuery = "SELECT * FROM users";
+        String sqlQuery = "SELECT u.*, \n" +
+                "(SELECT GROUP_CONCAT(friend_id)\n" +
+                "FROM friendship\n" +
+                "WHERE user_id = u.user_id) AS friends\n" +
+                "FROM users u";
         return findMany(sqlQuery);
     }
 
     @Override
     public Optional<User> findById(long userId) {
-        String sqlQuery = "SELECT * FROM users WHERE user_id = ?";
-        Optional<User> user = findOne(sqlQuery, userId);
+        String sqlQuery = "SELECT u.*, \n" +
+                "(SELECT GROUP_CONCAT(friend_id)\n" +
+                "FROM friendship\n" +
+                "WHERE user_id = u.user_id) AS friends\n" +
+                "FROM users u \n" +
+                "WHERE u.user_id = ?";
 
-        if (user.isPresent()) {
-            String sqlQueryFriends = "SELECT friend_id FROM friendship WHERE user_id = ?";
-            List<Long> friends = jdbcTemplate.queryForList(sqlQueryFriends, Long.class, userId);
-            user.get().setFriends(new HashSet<>(friends));
-        }
-
-        return user;
+        return findOne(sqlQuery, userId);
     }
 
     public Optional<User> findByEmail(String email) {
-        String sqlQuery = "SELECT * FROM users WHERE email = ?";
+        String sqlQuery = "SELECT u.*, \n" +
+                "(SELECT GROUP_CONCAT(friend_id)\n" +
+                "FROM friendship\n" +
+                "WHERE user_id = u.user_id) AS friends\n" +
+                "FROM users u \n" +
+                "WHERE u.email = ?";
         return findOne(sqlQuery, email);
     }
 
@@ -85,7 +87,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     @Override
     public void removeFriend(long userId, long friendId) {
         String sqlQuery = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+        update(sqlQuery, userId, friendId);
     }
 
 }

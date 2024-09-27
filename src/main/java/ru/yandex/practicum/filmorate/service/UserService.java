@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -121,27 +122,38 @@ public class UserService {
     //добавление в друзья
     public void addFriend(Long userId, Long friendId) {
         log.info("Добавление друга с id:" + friendId + " пользователю с id: " + userId);
-        if (userId < 0) {
+        Optional<User> user = userStorage.findById(userId);
+        Optional<User> friend = userStorage.findById(friendId);
+
+        if (user.isEmpty()) {
             log.warn("Пользователь добавляющий в друзья не найден. Id пользователя: " + userId);
             throw new NotFoundException("Пользователь добавляющий в друзья не найден.");
         }
 
-        if (friendId < 0) {
+        if (friend.isEmpty()) {
             log.warn("Пользователь добавляемый в друзья не найден. Id пользователя: " + friendId);
             throw new NotFoundException("Пользователь добавляемый в друзья не найден.");
         }
 
-        findById(userId).getFriends().add(friendId);
-        findById(friendId).getFriends().add(userId);
         userStorage.addFriend(userId, friendId);
         log.info("Добавлен друга с id:" + friendId + " пользователю с id: " + userId);
     }
 
     //удаление из друзей
     public void removeFriend(long userId, long friendId) {
-        findById(userId).getFriends().remove(friendId);
-        findById(friendId).getFriends().remove(userId);
-        userStorage.removeFriend(userId, friendId);
+        Optional<User> user = userStorage.findById(userId);
+        Optional<User> friends = userStorage.findById(friendId);
+
+        if (user.isEmpty() || friends.isEmpty()) {
+            throw new NotFoundException("Пользователи не найдены.");
+        }
+
+        if (!user.get().getFriends().contains(friendId)) {
+            ResponseEntity.ok("Пользователи не являются друзьями.");
+        } else {
+            userStorage.removeFriend(userId, friendId);
+        }
+
         log.info("Удален друга с id:" + friendId + "у пользователя с id: " + userId);
     }
 

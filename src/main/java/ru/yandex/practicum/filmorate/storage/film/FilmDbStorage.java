@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
+public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private final GenreStorage genreStorage;
 
 
@@ -27,45 +27,49 @@ class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        String sqlQuery = "SELECT " +
-                "f.film_id AS id, " +
-                "f.name AS name, " +
-                "f.description AS description, " +
-                "f.releaseDate AS releaseDate, " +
-                "f.duration AS duration, " +
-                "mr.mpa_rating_name AS mpa_name, " +
-                "mr.mpa_rating_id AS mpa_id, " +
-                "mr.description AS mpa_description, " +
-                "GROUP_CONCAT(g.name) AS genres\n" +
+        String sqlQuery = "SELECT\n" +
+                "    f.film_id AS id, \n" +
+                "    f.name AS name, \n" +
+                "    f.description AS description, \n" +
+                "    f.releaseDate AS releaseDate, \n" +
+                "    f.duration AS duration, \n" +
+                "    mr.mpa_rating_name AS mpa_name, \n" +
+                "    mr.mpa_rating_id AS mpa_id, \n" +
+                "    mr.description AS mpa_description,\n" +
+                "    (\n" +
+                "        SELECT GROUP_CONCAT(g.name) \n" +
+                "        FROM film_genres fg \n" +
+                "        LEFT JOIN genres g ON fg.genre_id = g.genre_id\n" +
+                "        WHERE fg.film_id = f.film_id\n" +
+                "    ) AS genres\n" +
                 "FROM film f\n" +
                 "JOIN mpa_rating mr ON f.mpa_rating = mr.mpa_rating_id\n" +
-                "LEFT JOIN film_genres fg ON f.film_id = fg.film_id\n" +
-                "LEFT JOIN genres g ON fg.genre_id = g.genre_id\n" +
-                "GROUP BY f.film_id, f.name, f.description, f.releaseDate, f.duration, mr.mpa_rating_name, mr.description\n" +
-                "ORDER BY f.film_id;";
+                "ORDER BY f.film_id";
         return findMany(sqlQuery);
     }
 
 
     @Override
     public Optional<Film> findById(long filmId) {
-        String sqlQuery = "SELECT " +
-                "f.film_id AS id, " +
-                "f.name AS name, " +
-                "f.description AS description, " +
-                "f.releaseDate AS releaseDate, " +
-                "f.duration AS duration, " +
-                "mr.mpa_rating_name AS mpa_name, " +
-                "mr.mpa_rating_id AS mpa_id, " +
-                "mr.description AS mpa_description, " +
-                "GROUP_CONCAT(g.name) AS genres\n" +
+        String sqlQuery = "SELECT\n" +
+                "    f.film_id AS id, \n" +
+                "    f.name AS name, \n" +
+                "    f.description AS description, \n" +
+                "    f.releaseDate AS releaseDate, \n" +
+                "    f.duration AS duration, \n" +
+                "    mr.mpa_rating_name AS mpa_name, \n" +
+                "    mr.mpa_rating_id AS mpa_id, \n" +
+                "    mr.description AS mpa_description,\n" +
+                "    (\n" +
+                "        SELECT GROUP_CONCAT(g.name) \n" +
+                "        FROM film_genres fg \n" +
+                "        LEFT JOIN genres g ON fg.genre_id = g.genre_id\n" +
+                "        WHERE fg.film_id = f.film_id\n" +
+                "    ) AS genres\n" +
                 "FROM film f\n" +
                 "JOIN mpa_rating mr ON f.mpa_rating = mr.mpa_rating_id\n" +
-                "LEFT JOIN film_genres fg ON f.film_id = fg.film_id\n" +
-                "LEFT JOIN genres g ON fg.genre_id = g.genre_id\n" +
                 "WHERE f.film_id = ?\n" +
-                "GROUP BY f.film_id, f.name, f.description, f.releaseDate, f.duration, mr.mpa_rating_name, mr.description\n" +
-                "ORDER BY f.film_id;";
+                "ORDER BY f.film_id";
 
         Optional<Film> film = findOne(sqlQuery, filmId);
 

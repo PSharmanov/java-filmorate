@@ -163,11 +163,11 @@ public class FilmService {
             throw new ValidationException("Количество фильмов должно быть больше чем 0");
         }
 
-        List<Film> filmSet = filmStorage.findPopular(count);
+        List<Film> filmList = filmStorage.findPopular(count);
 
         log.info("Передан список популярных фильмов.");
 
-        return filmSet;
+        return filmList;
 
     }
 

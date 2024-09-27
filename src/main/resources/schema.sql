@@ -74,6 +74,6 @@ CREATE TABLE IF NOT EXISTS likes (
     user_id INT NOT NULL,
     FOREIGN KEY (film_id) REFERENCES film(film_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id),
-    UNIQUE (film_id, user_id) -- Уникальная пара фильм-жанр
+    UNIQUE (film_id, user_id) -- Уникальная пара фильм-пользователь
 );
 
